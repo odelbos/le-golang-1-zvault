@@ -17,3 +17,10 @@ func DefaultConfig() (string, error) {
 	}
 	return filepath.Join(userHome, CONFIG_DIR, CONFIG_NAME), nil
 }
+
+func ConfigExists(config string) (bool, error) {
+	if _, err := os.Stat(config); err != nil {
+		return false, err
+	}
+	return true, nil
+}
