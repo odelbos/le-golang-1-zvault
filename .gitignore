@@ -1,0 +1,24 @@
+
+# IgnoretTemporary files
+/tmp/
+
+# -----
+
+# Ignore Working files
+OLD.*
+ORIG.*
+TEST.*
+BACK.*
+
+# Ignore OSX files
+.DS_Store
+
+# Ignore editors and IDE
+.idea
+.vscode
+
+# Ignore Vim
+*.swp
+
+# Ignore Emacs
+.#*
