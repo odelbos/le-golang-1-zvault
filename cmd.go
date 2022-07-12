@@ -15,10 +15,21 @@ func InitCmd(configPath string) {
 	}
 
 	if exists {
-		// The configuration file already exists
-		//
-		// TODO : Do you want to overwrite ?
-		// 
-		fmt.Println("The config file already exists !!!")
+		fmt.Println("The config file already exists !")
+
+		answer, err := Ask("Do you want to overwrite it? (yes/no)")
+		if err != nil {
+			fmt.Println("Caannot read user input !")
+			os.Exit(1)
+		}
+
+		if answer != "yes" {
+			fmt.Println("-quit-")
+			os.Exit(0)
+		}
 	}
+
+	//
+	// TODO : Ask for storage folders and master pawwsord
+	//
 }
