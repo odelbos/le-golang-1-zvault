@@ -20,9 +20,6 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	fmt.Printf("Conf file : %v\n", configPath)
-	fmt.Printf("Args : %v\n", args)
-
 	if len(args) < 1 {
 		fmt.Println("You must provide a command: init, put, get")
 		os.Exit(1)
@@ -33,7 +30,7 @@ func main() {
 	// Init Command
 	// ---------------------------------------------------
 	if cmd == "init" {
-		fmt.Println("We got an 'init' command")
+		InitCmd(configPath)
 		os.Exit(0)
 	}
 
