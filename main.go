@@ -6,6 +6,10 @@ import (
 	"flag"
 )
 
+//
+// TODO : Explore https://github.com/urfave/cli to manage the CLI commands
+//
+
 func main() {
 	// Get default config absolute path and file name.
 	defaultConfig, err := DefaultConfig()
