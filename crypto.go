@@ -57,3 +57,20 @@ func EncryptWithKey(plain *[]byte, key *[]byte) (*[]byte, *[]byte, error) {
 	cipher := gcm.Seal(nil, iv, *plain, []byte(AES_GCM_AAD))
 	return &cipher, &iv, nil
 }
+
+// Decrypt some []byte with AES_256_GCM and the given key and iv.
+func Decrypt(encrypted *[]byte, key *[]byte, iv *[]byte) (*[]byte, error) {
+	block, err := aes.NewCipher(*key)
+	if err != nil {
+		return &[]byte{}, err
+	}
+	gcm, err := cipher.NewGCMWithNonceSize(block, len(*iv))
+	if err != nil {
+		return &[]byte{}, err
+	}
+	plain, err := gcm.Open(nil, *iv, *encrypted, []byte(AES_GCM_AAD))
+	if err != nil {
+		return &[]byte{}, err
+	}
+	return &plain, nil
+}
