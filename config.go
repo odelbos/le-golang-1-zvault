@@ -53,7 +53,7 @@ func NewConfig(dataPath string, filesPath string) *Config {
 		panic("Cannot get absolute path !")
 	}
 	// Generate a master key
-	masterKey := GenCryptoRand(32)
+	masterKey := GenCryptoRand(AES_KEY_SIZE)
 	vault := Vault{
 		DataPath: absDataPath,
 		FilesPath: absFilesPath,
