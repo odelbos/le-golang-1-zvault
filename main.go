@@ -43,13 +43,11 @@ func main() {
 	}
 	config := LoadConfig(configPath, pwd)
 
-	fmt.Println(config)
-
 	// ---------------------------------------------------
 	// Put Command
 	// ---------------------------------------------------
 	if cmd == "put" {
-		fmt.Println("We got a 'put' command")
+		PutCmd(&config, args[1:])
 		os.Exit(0)
 	}
 

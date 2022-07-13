@@ -53,3 +53,25 @@ func InitCmd(configPath string) {
 	config := NewConfig(dataPath, filesPath)
 	config.Save(configPath, pwd)
 }
+
+func PutCmd(config *Config, args []string) {
+	fmt.Println("We got a 'put' command")
+	fmt.Println(args)
+
+	if len(args) != 1 {
+		fmt.Println("With the 'put' command you must provide the path of the file to store in the vault !")
+		os.Exit(1)
+	}
+
+	filePath := args[0]
+	fileInfo, err := config.Vault.Put(filePath)
+	if err != nil {
+		fmt.Println("Cannot store file in vault !")
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(fileInfo)
+	// fmt.Printf("File id : %v\n", fileInfo.Id)
+	// os.Exit(0)
+}
