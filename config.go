@@ -18,6 +18,7 @@ type Config struct {
 }
 
 type EncryptedConfig struct {
+	Version uint `json:"r"`
 	Salt []byte `json:"s"`
 	Iter int `json:"t"`
 	Iv []byte `json:"i"`
@@ -77,6 +78,7 @@ func (c *Config) Save(configPath string, pwd []byte) error {
 	}
 	// Create the encrypted configuration
 	eConfig := EncryptedConfig{
+		Version: c.Version,
 		Salt: salt,
 		Iter: PBKDF2_ITER,
 		Iv: *iv,
