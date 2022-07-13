@@ -34,6 +34,17 @@ func main() {
 		os.Exit(0)
 	}
 
+	// All the other commands need a vault configuration.
+	// Ask password and load config.
+	pwd, err := AskPwd()
+	if err != nil {
+		fmt.Println("Caannot read password !", err)
+		os.Exit(1)
+	}
+	config := LoadConfig(configPath, pwd)
+
+	fmt.Println(config)
+
 	// ---------------------------------------------------
 	// Put Command
 	// ---------------------------------------------------

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"io/ioutil"
 	"path/filepath"
 	"encoding/json"
 )
@@ -94,4 +96,38 @@ func (c *Config) Save(configPath string, pwd []byte) error {
 		return err
 	}
 	return nil
+}
+
+func LoadConfig(configPath string, pwd []byte) Config {
+	// Load the encrypted config
+	jsonEncryptedConfig, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		fmt.Println("Cannot read configuration file !")
+		os.Exit(1)
+	}
+	var eConfig EncryptedConfig
+	err = json.Unmarshal(jsonEncryptedConfig, &eConfig)
+	if err != nil {
+		panic("Cannot decode json !")
+	}
+
+	// Get back the derived key.
+	derivedKey := GenPBKDF2WithSalt(pwd, eConfig.Salt)
+
+	// Descrupt the vault configuration
+	decryptedVault, err := Decrypt(&eConfig.EncryptedVault, &derivedKey, &eConfig.Iv)
+	if err != nil {
+		fmt.Println("Caannot decrypt configuration !")
+		os.Exit(1)
+	}
+	var vault Vault
+	err = json.Unmarshal(*decryptedVault, &vault)
+	if err != nil {
+		panic("Cannot decode json !")
+	}
+
+	return Config{
+		Version: eConfig.Version,
+		Vault: vault,
+	}
 }
