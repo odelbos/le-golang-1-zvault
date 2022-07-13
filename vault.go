@@ -13,18 +13,30 @@ const (
 )
 
 type Vault struct {
-	DataPath string `json:"d"`
+	DataPath  string `json:"d"`
 	FilesPath string `json:"f"`
 	MasterKey []byte `json:"m"`
 }
 
+type BlockInfo struct {
+	Iv []byte `json:"i"`
+}
+
+type GroupInfo struct {
+	Id     string      `json:"i"`
+	Key    []byte      `json:"k"`
+	Hash   string      `json:"h"`
+	Blocks []BlockInfo `json:"b"`
+}
+
 type FileInfo struct {
-	Id string `json:"i"`
-	Name string `json:"n"`
+	Id        string      `json:"i"`
+	Name      string      `json:"n"`
+	BlockSize uint        `json:"b"`
+	Groups    []GroupInfo `json:"g"`
 }
 
 func (v *Vault) Put(filePath string) (*FileInfo, error) {
-
 	fileId, err := v.genFileId()
 	if err != nil {
 		fmt.Println("Cannot generate file id !")
