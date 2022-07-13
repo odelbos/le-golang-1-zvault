@@ -27,9 +27,29 @@ func InitCmd(configPath string) {
 			fmt.Println("-quit-")
 			os.Exit(0)
 		}
+		fmt.Println("")        // Output empty line
 	}
 
+	// Ask for storage folders and master pawwsord
 	//
-	// TODO : Ask for storage folders and master pawwsord
-	//
+	dataPath, err := Ask("Data path")
+	if err != nil {
+		fmt.Println("Caannot read user input !")
+		os.Exit(1)
+	}
+	filesPath, err := Ask("Files path")
+	if err != nil {
+		fmt.Println("Caannot read user input !")
+		os.Exit(1)
+	}
+	// Ask password
+	pwd, err := AskPwdTwice()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Data path: %v\n", dataPath)
+	fmt.Printf("Files path: %v\n", filesPath)
+	fmt.Printf("Password: %v\n", pwd)
 }
