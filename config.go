@@ -40,11 +40,20 @@ func ConfigExists(config string) (bool, error) {
 }
 
 func NewConfig(dataPath string, filesPath string) *Config {
+	// Make sure we have absolute pathes
+	absDataPath, err := filepath.Abs(dataPath)
+	if err != nil {
+		panic("Cannot get absolute path !")
+	}
+	absFilesPath, err := filepath.Abs(filesPath)
+	if err != nil {
+		panic("Cannot get absolute path !")
+	}
 	// Generate a master key
 	masterKey := GenCryptoRand(32)
 	vault := Vault{
-		DataPath: dataPath,
-		FilesPath: filesPath,
+		DataPath: absDataPath,
+		FilesPath: absFilesPath,
 		MasterKey: masterKey,
 	}
 	config := Config{
