@@ -34,6 +34,13 @@ func GenPBKDF2(pwd []byte) ([]byte, []byte) {
 	return key, salt
 }
 
+// Generate a derived key from a pawwsord and salt.
+// Return the derived key.
+func GenPBKDF2WithSalt(pwd []byte, salt []byte) []byte {
+	key := pbkdf2.Key(pwd, salt, PBKDF2_ITER, AES_KEYSIZE, sha256.New)
+	return key
+}
+
 // Encrypt the 'plain' message with AES_256_GCM and the given 'key'.
 // This function will generate a crypto random IV used for encryption.
 // Return the encrypted message and the IV.
