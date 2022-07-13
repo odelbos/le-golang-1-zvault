@@ -6,15 +6,14 @@ import (
 )
 
 const (
+	VERSION = 1
 	CONFIG_DIR = ".config"
 	CONFIG_NAME = "zvault.json"
 )
 
 type Config struct {
-	Salt []byte `json:"s"`
-	Iter int `json:"t"`
-	Iv []byte `json:"i"`
-	Vault Vault `json:"v"`
+	Version uint
+	Vault Vault
 }
 
 func DefaultConfig() (string, error) {
@@ -32,16 +31,18 @@ func ConfigExists(config string) (bool, error) {
 	return true, nil
 }
 
-func NewConfig(dataPath string, filesPath string, pwd []byte) *Vault {
+func NewConfig(dataPath string, filesPath string, pwd []byte) *Config {
 	// Generate a master key
 	masterKey := GenCryptoRand(32)
-
 	vault := Vault{
 		DataPath: dataPath,
 		FilesPath: filesPath,
 		MasterKey: masterKey,
-		Iteration: PBKDF2_ITER,
 	}
 
-	return &vault
+	config := Config{
+		Version: VERSION,
+		Vault:  vault,
+	}
+	return &config
 }
