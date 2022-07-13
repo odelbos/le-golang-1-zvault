@@ -11,7 +11,7 @@ import (
 const (
 	PBKDF2_SALT_SIZE = 16
 	PBKDF2_ITER = 65536
-	AES_KEYSIZE = 32
+	AES_KEY_SIZE = 32
 	AES_IV_SIZE = 16
 	AES_NONCE_SIZE = 16
 	AES_GCM_AAD = "A256GCM"
@@ -30,14 +30,14 @@ func GenCryptoRand(nb uint8) []byte {
 // Return the derived key and the salt.
 func GenPBKDF2(pwd []byte) ([]byte, []byte) {
 	salt := GenCryptoRand(PBKDF2_SALT_SIZE)
-	key := pbkdf2.Key(pwd, salt, PBKDF2_ITER, AES_KEYSIZE, sha256.New)
+	key := pbkdf2.Key(pwd, salt, PBKDF2_ITER, AES_KEY_SIZE, sha256.New)
 	return key, salt
 }
 
 // Generate a derived key from a pawwsord and salt.
 // Return the derived key.
 func GenPBKDF2WithSalt(pwd []byte, salt []byte) []byte {
-	key := pbkdf2.Key(pwd, salt, PBKDF2_ITER, AES_KEYSIZE, sha256.New)
+	key := pbkdf2.Key(pwd, salt, PBKDF2_ITER, AES_KEY_SIZE, sha256.New)
 	return key
 }
 
