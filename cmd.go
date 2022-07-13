@@ -49,14 +49,7 @@ func InitCmd(configPath string) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Data path: %v\n", dataPath)
-	fmt.Printf("Files path: %v\n", filesPath)
-	fmt.Printf("Password: %v\n", pwd)
-
-	//
-	// TODO : save configuration
-	//
-	config := NewConfig(dataPath, filesPath, pwd)
-
-	fmt.Println(config)
+	// Create new config and save it
+	config := NewConfig(dataPath, filesPath)
+	config.Save(configPath, pwd)
 }
