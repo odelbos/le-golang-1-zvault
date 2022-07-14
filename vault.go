@@ -268,6 +268,8 @@ func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo
 	defer groupFile.Close()
 
 	blocks := group.Blocks[:]
+	groupSHA := sha256.New()
+	groupSHA.Write([]byte(group.Id))
 	for {
 		bytesRead, err := groupFile.Read(buffer)
 		if err != nil {
@@ -278,6 +280,7 @@ func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo
 			break
 		}
 		cipher := buffer[:bytesRead]
+		groupSHA.Write(cipher)
 		block := blocks[0]
 		data, err := Decrypt(&cipher, &group.Key, &block.Iv)
 		if err != nil {
@@ -291,6 +294,14 @@ func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo
 
 		blocks = blocks[1:]
 	}
+
+	// Verify the group data integrity
+	hash := hex.EncodeToString(groupSHA.Sum(nil))
+	if group.Hash != hash {
+		return fmt.Errorf("Hash group mismatch !")
+
+	}
+
 	return nil
 }
 
