@@ -6,6 +6,7 @@ import (
 	"io"
 	"path/filepath"
 	"encoding/hex"
+	"encoding/json"
 	"crypto/rand"
 	"crypto/sha256"
 )
@@ -34,31 +35,23 @@ type GroupInfo struct {
 type FileInfo struct {
 	Id        string      `json:"i"`
 	Name      string      `json:"n"`
-	BlockSize uint        `json:"b"`
+	BlockSize int         `json:"b"`
 	Groups    []GroupInfo `json:"g"`
 }
 
 func (v *Vault) Put(filePath string) (*FileInfo, error) {
-
-	groups, err := v.writeGroups(filePath)
+	// Write groups of blocks
+	groups, blockSize, err := v.writeGroups(filePath)
 	if err != nil {
 		return &FileInfo{}, err
 	}
-
-
-	fileId, err := v.genFileId()
-	if err != nil {
-		fmt.Println("Cannot generate file id !")
-		os.Exit(1)
-	}
-
+	// Write file info
 	fileName := filepath.Base(filePath)
-
-	return &FileInfo{
-		Id: fileId,
-		Name: fileName,
-		Groups: *groups,
-	}, nil
+	fileInfo, err := v.writeFile(fileName, groups, blockSize)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+	return fileInfo, nil
 }
 
 
@@ -77,16 +70,16 @@ func (v *Vault) newGroup() *GroupInfo {
 	}
 }
 
-func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, error) {
+func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, int, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return &[]GroupInfo{}, err
+		return &[]GroupInfo{}, 0, err
 	}
 	defer file.Close()
 
 	stat, err := file.Stat()
 	if err != nil {
-		return &[]GroupInfo{}, err
+		return &[]GroupInfo{}, 0, err
 	}
 	fileSize := stat.Size()
 
@@ -108,7 +101,7 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, error) {
 		if err != nil {
 			if err != io.EOF {
 				// TODO : Clean up the already created blocks
-				return &[]GroupInfo{}, err
+				return &[]GroupInfo{}, 0, err
 			}
 
 			groupFile.Close()
@@ -130,7 +123,7 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, error) {
 			groupFile, err = os.Create(fp)
 			if err != nil {
 				// TODO : Clean up the already created blocks
-				return &[]GroupInfo{}, err
+				return &[]GroupInfo{}, 0, err
 			}
 			defer groupFile.Close()
 		}
@@ -139,7 +132,7 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, error) {
 		cipher, iv, err := EncryptWithKey(&data, &group.Key)
 		if err != nil {
 			// TODO : clean up already created blocks !
-			return &[]GroupInfo{}, err
+			return &[]GroupInfo{}, 0, err
 		}
 		// Update current group SHA
 		groupSHA.Write(*cipher)
@@ -148,7 +141,7 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, error) {
 		_, err = groupFile.Write(*cipher)
 		if err != nil {
 			// TODO : clean up already created blocks !
-			return &[]GroupInfo{}, err
+			return &[]GroupInfo{}, 0, err
 		}
 		block := BlockInfo{
 			Iv: *iv,
@@ -166,7 +159,53 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, error) {
 		}
 	}
 
-	return &groups, nil
+	return &groups, blockSize, nil
+}
+
+func (v *Vault) writeFile(fileName string, groups *[]GroupInfo, blockSize int) (*FileInfo, error) {
+	fileId, err := v.genFileId()
+	if err != nil {
+		return &FileInfo{}, err
+	}
+
+	fileInfo := FileInfo{
+		Id:        fileId,
+		Name:      fileName,
+		BlockSize: blockSize,
+		Groups:    *groups,
+	}
+	jsonFileInfo, err := json.Marshal(fileInfo)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+
+	// Encrypt the file info with the master key
+	eFileInfo, iv, err := EncryptWithKey(&jsonFileInfo, &v.MasterKey)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+
+	// Write file info to disk
+	fp := filepath.Join(v.FilesPath, fileId)
+	fh, err := os.Create(fp)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+
+	defer func() {
+		if err := fh.Close(); err != nil {
+			return &FileInfo{}, err
+		}
+	}()
+
+	if _, err := fh.Write(*iv); err != nil {
+		return &FileInfo{}, err
+	}
+	if _, err := fh.Write(*eFileInfo); err != nil {
+		return &FileInfo{}, err
+	}
+
+	return &fileInfo, nil
 }
 
 // -----
@@ -180,7 +219,7 @@ func (v *Vault) genFileId() (string, error) {
 }
 
 // Fancy Id generator
-// WARNING : Not thread safe
+// WARNING : Not concurrent safe
 func genId(dir string) (string, error) {
 	idBytes := make([]byte, ID_SIZE)
 	for {
