@@ -64,7 +64,8 @@ func PutCmd(config *Config, args []string) {
 	}
 
 	filePath := args[0]
-	fileInfo, err := config.Vault.Put(filePath)
+	// fileInfo, err := config.Vault.Put(filePath)
+	_, err := config.Vault.Put(filePath)
 	if err != nil {
 		fmt.Println("Cannot store file in vault !")
 		fmt.Println(err)
@@ -78,6 +79,14 @@ func GetCmd(config *Config, args []string) {
 
 	if len(args) != 1 {
 		fmt.Println("With the 'get' command you must provide the file id !")
+		os.Exit(1)
+	}
+
+	fileId := args[0]
+	err := config.Vault.Get(fileId)
+	if err != nil {
+		fmt.Println("Cannot get the file !")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 }
