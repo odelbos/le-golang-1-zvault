@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"io"
+	"io/ioutil"
 	"path/filepath"
 	"encoding/hex"
 	"encoding/json"
@@ -52,6 +53,34 @@ func (v *Vault) Put(filePath string) (*FileInfo, error) {
 		return &FileInfo{}, err
 	}
 	return fileInfo, nil
+}
+
+func (v *Vault) Get(id string) error {
+	// Read and decrypt the file info
+	fp := filepath.Join(v.FilesPath, id)
+	if _, err := os.Stat(fp); err != nil {
+		return err
+	}
+	buffer, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return err
+	}
+	iv := buffer[:16]
+	eFileInfo := buffer[16:]
+	jsonFileInfo, err := Decrypt(&eFileInfo, &v.MasterKey, &iv)
+
+	var fileInfo FileInfo
+	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
+	if err != nil {
+		return err
+	}
+
+	// Rebuild the original file
+	err = v.rebuild(&fileInfo, ".")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 
@@ -206,6 +235,63 @@ func (v *Vault) writeFile(fileName string, groups *[]GroupInfo, blockSize int) (
 	}
 
 	return &fileInfo, nil
+}
+
+// -----
+
+func (v *Vault) rebuild(fileInfo *FileInfo, dir string) error {
+	fp := filepath.Join(dir, fileInfo.Name)
+	file, err := os.Create(fp)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	for _, group := range fileInfo.Groups {
+		fmt.Printf("nb blocks: %v\n", len(group.Blocks))
+		v.rebuildGroup(file, fileInfo, &group)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo) error {
+	buffer := make([]byte, fileInfo.BlockSize + AES_GCM_TAG_SIZE)
+	gp := filepath.Join(v.DataPath, group.Id)
+	groupFile, err := os.Open(gp)
+	if err != nil {
+		return err
+	}
+	defer groupFile.Close()
+
+	blocks := group.Blocks[:]
+	for {
+		bytesRead, err := groupFile.Read(buffer)
+		if err != nil {
+			if err != io.EOF {
+				// TODO : Clean up the already created blocks
+				return err
+			}
+			break
+		}
+		cipher := buffer[:bytesRead]
+		block := blocks[0]
+		data, err := Decrypt(&cipher, &group.Key, &block.Iv)
+		if err != nil {
+			return err
+		}
+
+		_, err = file.Write(*data)
+		if err != nil {
+			return err
+		}
+
+		blocks = blocks[1:]
+	}
+	return nil
 }
 
 // -----
