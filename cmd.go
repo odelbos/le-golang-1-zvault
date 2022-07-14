@@ -55,9 +55,6 @@ func InitCmd(configPath string) {
 }
 
 func PutCmd(config *Config, args []string) {
-	fmt.Println("We got a 'put' command")
-	fmt.Println(args)
-
 	if len(args) != 1 {
 		fmt.Println("With the 'put' command you must provide the path of the file to store in the vault !")
 		os.Exit(1)
@@ -71,12 +68,10 @@ func PutCmd(config *Config, args []string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	fmt.Println("File stored.")
 }
 
 func GetCmd(config *Config, args []string) {
-	fmt.Println("We got a 'get' command")
-	fmt.Println(args)
-
 	if len(args) != 1 {
 		fmt.Println("With the 'get' command you must provide the file id !")
 		os.Exit(1)
@@ -89,4 +84,5 @@ func GetCmd(config *Config, args []string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	fmt.Println("File restored.")
 }

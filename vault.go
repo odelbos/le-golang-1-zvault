@@ -114,9 +114,6 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, int, error) {
 
 	nbBlocks, blockSize := NbBlocksPerGroup(fileSize)
 
-	fmt.Printf("file size : %v - %T\n", fileSize, fileSize) // TODO : debug
-	fmt.Printf("Nb blocks per group : %v\n", nbBlocks)      // TODO : debug
-
 	// -----
 
 	var groups []GroupInfo
@@ -136,7 +133,6 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, int, error) {
 			groupFile.Close()
 			if len(group.Blocks) != 0 {
 				group.Hash = hex.EncodeToString(groupSHA.Sum(nil))
-				fmt.Printf("Group: %v, sha: %v\n", group.Id, group.Hash)
 				groups = append(groups, *group)
 			}
 			break
@@ -180,9 +176,6 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, int, error) {
 		if count += 1; count == nbBlocks {
 			groupFile.Close()
 			group.Hash = hex.EncodeToString(groupSHA.Sum(nil))
-
-			fmt.Printf("Group: %v, sha: %v\n", group.Id, group.Hash)
-
 			groups = append(groups, *group)
 			count = 0
 		}
@@ -249,7 +242,6 @@ func (v *Vault) rebuild(fileInfo *FileInfo, dir string) error {
 	defer file.Close()
 
 	for _, group := range fileInfo.Groups {
-		fmt.Printf("nb blocks: %v\n", len(group.Blocks))
 		v.rebuildGroup(file, fileInfo, &group)
 		if err != nil {
 			return err
