@@ -1,5 +1,6 @@
 # Ignore storage folder
 /storage
+/data
 
 # IgnoretTemporary files
 /tmp/
