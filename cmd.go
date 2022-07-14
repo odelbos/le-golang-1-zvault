@@ -75,3 +75,13 @@ func PutCmd(config *Config, args []string) {
 	// fmt.Printf("File id : %v\n", fileInfo.Id)
 	// os.Exit(0)
 }
+
+func GetCmd(config *Config, args []string) {
+	fmt.Println("We got a 'get' command")
+	fmt.Println(args)
+
+	if len(args) != 1 {
+		fmt.Println("With the 'get' command you must provide the file id !")
+		os.Exit(1)
+	}
+}

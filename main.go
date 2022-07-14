@@ -59,7 +59,7 @@ func main() {
 	// Get Command
 	// ---------------------------------------------------
 	if cmd == "get" {
-		fmt.Println("We got a 'get' command")
+		GetCmd(&config, args[1:])
 		os.Exit(0)
 	}
 
