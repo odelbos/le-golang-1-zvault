@@ -70,10 +70,6 @@ func PutCmd(config *Config, args []string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(fileInfo)
-	// fmt.Printf("File id : %v\n", fileInfo.Id)
-	// os.Exit(0)
 }
 
 func GetCmd(config *Config, args []string) {
