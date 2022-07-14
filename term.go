@@ -23,13 +23,13 @@ func Ask(question string) (string, error) {
 
 // Ask user for a password twice and verify equality
 func AskPwdTwice() ([]byte, error) {
-	fmt.Print("> Enter Password: ")
+	fmt.Print("> Enter password: ")
 	pwd1, err := terminal.ReadPassword(0)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Print("\n> Repeat Password: ")
+	fmt.Print("\n> Repeat password: ")
 	pwd2, err := terminal.ReadPassword(0)
 	if err != nil {
 		return nil, err

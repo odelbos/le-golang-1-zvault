@@ -32,12 +32,12 @@ func InitCmd(configPath string) {
 
 	// Ask for storage folders and master pawwsord
 	//
-	dataPath, err := Ask("Data path")
+	dataPath, err := Ask("Data folder")
 	if err != nil {
 		fmt.Println("Caannot read user input !")
 		os.Exit(1)
 	}
-	filesPath, err := Ask("Files path")
+	filesPath, err := Ask("Files folder")
 	if err != nil {
 		fmt.Println("Caannot read user input !")
 		os.Exit(1)
@@ -52,6 +52,7 @@ func InitCmd(configPath string) {
 	// Create new config and save it
 	config := NewConfig(dataPath, filesPath)
 	config.Save(configPath, pwd)
+	fmt.Println("Vault configuration saved.")
 }
 
 func PutCmd(config *Config, args []string) {
