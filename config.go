@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"io/ioutil"
+	"errors"
 	"path/filepath"
 	"encoding/json"
 )
@@ -36,10 +37,14 @@ func DefaultConfig() (string, error) {
 }
 
 func ConfigExists(config string) (bool, error) {
-	if _, err := os.Stat(config); err != nil {
-		return false, err
+	_, err := os.Stat(config)
+	if err == nil {
+		return true, err
 	}
-	return true, nil
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
 }
 
 func NewConfig(dataPath string, filesPath string) *Config {
