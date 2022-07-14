@@ -129,6 +129,7 @@ MD5 (file-9mb.bin) = 0552c4b808193553cfed8bf562a41d8c
 
 # Roadmap
 
+- [ ] Clean up already groups if an error occur
 - [ ] Better errors handling
 - [ ] Use CLI package to manage commands (see: https://github.com/urfave/cli)
 
