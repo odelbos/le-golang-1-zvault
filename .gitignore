@@ -2,6 +2,9 @@
 /storage
 /data
 
+# Ignore binary
+zvault
+
 # IgnoretTemporary files
 /tmp/
 
