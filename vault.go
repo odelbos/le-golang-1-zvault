@@ -55,15 +55,15 @@ func (v *Vault) Put(filePath string) (string, error) {
 	return fileInfo.Id, nil
 }
 
-func (v *Vault) Get(id string) error {
+func (v *Vault) Get(id string) (string, error) {
 	// Read and decrypt the file info
 	fp := filepath.Join(v.FilesPath, id)
 	if _, err := os.Stat(fp); err != nil {
-		return err
+		return "", err
 	}
 	buffer, err := ioutil.ReadFile(fp)
 	if err != nil {
-		return err
+		return "", err
 	}
 	iv := buffer[:16]
 	eFileInfo := buffer[16:]
@@ -72,15 +72,15 @@ func (v *Vault) Get(id string) error {
 	var fileInfo FileInfo
 	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Rebuild the original file
 	err = v.rebuild(&fileInfo, ".")
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return fileInfo.Name, nil
 }
 
 

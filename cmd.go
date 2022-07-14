@@ -78,11 +78,11 @@ func GetCmd(config *Config, args []string) {
 	}
 
 	fileId := args[0]
-	err := config.Vault.Get(fileId)
+	fileName, err := config.Vault.Get(fileId)
 	if err != nil {
 		fmt.Println("Cannot get the file !")
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println("File restored.")
+	fmt.Printf("File restored, name: %v\n", fileName)
 }
