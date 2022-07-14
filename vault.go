@@ -194,7 +194,7 @@ func (v *Vault) writeFile(fileName string, groups *[]GroupInfo, blockSize int) (
 
 	defer func() {
 		if err := fh.Close(); err != nil {
-			return &FileInfo{}, err
+			panic("An error occur")
 		}
 	}()
 
