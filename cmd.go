@@ -62,14 +62,13 @@ func PutCmd(config *Config, args []string) {
 	}
 
 	filePath := args[0]
-	// fileInfo, err := config.Vault.Put(filePath)
-	_, err := config.Vault.Put(filePath)
+	fileId, err := config.Vault.Put(filePath)
 	if err != nil {
 		fmt.Println("Cannot store file in vault !")
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println("File stored.")
+	fmt.Printf("File stored, id: %v\n", fileId)
 }
 
 func GetCmd(config *Config, args []string) {

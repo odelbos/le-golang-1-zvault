@@ -40,19 +40,19 @@ type FileInfo struct {
 	Groups    []GroupInfo `json:"g"`
 }
 
-func (v *Vault) Put(filePath string) (*FileInfo, error) {
+func (v *Vault) Put(filePath string) (string, error) {
 	// Write groups of blocks
 	groups, blockSize, err := v.writeGroups(filePath)
 	if err != nil {
-		return &FileInfo{}, err
+		return "", err
 	}
 	// Write file info
 	fileName := filepath.Base(filePath)
 	fileInfo, err := v.writeFile(fileName, groups, blockSize)
 	if err != nil {
-		return &FileInfo{}, err
+		return "", err
 	}
-	return fileInfo, nil
+	return fileInfo.Id, nil
 }
 
 func (v *Vault) Get(id string) error {
