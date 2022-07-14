@@ -15,6 +15,7 @@ const (
 	AES_IV_SIZE = 16
 	AES_NONCE_SIZE = 16
 	AES_GCM_AAD = "A256GCM"
+	AES_GCM_TAG_SIZE = 16
 )
 
 func GenCryptoRand(nb uint8) []byte {
