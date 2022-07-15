@@ -3,12 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"flag"
-)
 
-//
-// TODO : Explore https://github.com/urfave/cli to manage the CLI commands
-//
+	"github.com/urfave/cli"
+)
 
 func main() {
 	// Get default config absolute path and file name.
@@ -18,54 +15,44 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Parse flags
-	var configPath string
-	flag.StringVar(&configPath, "c", defaultConfig, "Vault configuration file")
-	flag.Parse()
-	args := flag.Args()
-
-	if len(args) < 1 {
-		fmt.Println("You must provide a command: init, put, get")
-		os.Exit(1)
-	}
-	cmd := args[0]
-
-	// ---------------------------------------------------
-	// Init Command
-	// ---------------------------------------------------
-	if cmd == "init" {
-		InitCmd(configPath)
-		os.Exit(0)
+	// Define application flags and commands
+	app := cli.NewApp()
+	app.Name = "zvault"
+	app.Usage = "store/restore files in encrypted vault"
+	app.HelpName = "zvault"
+	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "config, c",
+			Value: defaultConfig,
+			Usage: "The configuration file to use.",
+		},
 	}
 
-	// All the other commands need a vault configuration.
-	// Ask password and load config.
-	pwd, err := AskPwd()
+	app.Commands = []cli.Command{
+		{
+			Name:    "init",
+			Aliases: []string{"i"},
+			Usage:   "Initialize a new vault",
+			Action: InitCmd,
+		},
+		{
+			Name:    "put",
+			Aliases: []string{"p"},
+			Usage:   "Store a file in vault",
+			Action:  PutCmd,
+			ArgsUsage:   "</path/to/file>",
+		},
+		{
+			Name:    "get",
+			Aliases: []string{"g"},
+			Usage:   "Restore a file from vault",
+			ArgsUsage:   "<id>",
+			Action: GetCmd,
+		},
+	}
+
+	err = app.Run(os.Args)
 	if err != nil {
-		fmt.Println("Caannot read password !", err)
-		os.Exit(1)
+		fmt.Println(err)
 	}
-	config := LoadConfig(configPath, pwd)
-
-	// ---------------------------------------------------
-	// Put Command
-	// ---------------------------------------------------
-	if cmd == "put" {
-		PutCmd(&config, args[1:])
-		os.Exit(0)
-	}
-
-	// ---------------------------------------------------
-	// Get Command
-	// ---------------------------------------------------
-	if cmd == "get" {
-		GetCmd(&config, args[1:])
-		os.Exit(0)
-	}
-
-	// ---------------------------------------------------
-	// Error unknown command
-	// ---------------------------------------------------
-	fmt.Println("Unknown command !")
-	os.Exit(1)
 }

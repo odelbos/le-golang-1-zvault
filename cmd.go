@@ -3,65 +3,66 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
-func InitCmd(configPath string) {
-	fmt.Printf("InitCmd : Configuration file : %v\n", configPath)
+func InitCmd(c *cli.Context) error {
+	configPath := c.GlobalString("config")
+	fmt.Printf("Configuration file : %v\n", configPath)
 
 	exists, err := ConfigExists(configPath)
 	if err != nil {
-		fmt.Println("Please run: zvault init")
-		os.Exit(1)
+		return cli.NewExitError("Cannot verify if config file exists!", 1)
 	}
 
 	if exists {
 		fmt.Println("The config file already exists !")
-
 		answer, err := Ask("Do you want to overwrite it? (yes/no)")
 		if err != nil {
-			fmt.Println("Caannot read user input !")
-			os.Exit(1)
+			return cli.NewExitError("Cannot read user input!", 1)
 		}
 
 		if answer != "yes" {
 			fmt.Println("-quit-")
-			os.Exit(0)
+			return nil
 		}
-		fmt.Println("")        // Output empty line
 	}
 
 	// Ask for storage folders and master pawwsord
-	//
 	dataPath, err := Ask("Data folder")
 	if err != nil {
-		fmt.Println("Caannot read user input !")
-		os.Exit(1)
+		return cli.NewExitError("Cannot read user input!", 1)
 	}
 	filesPath, err := Ask("Files folder")
 	if err != nil {
-		fmt.Println("Caannot read user input !")
-		os.Exit(1)
+		return cli.NewExitError("Cannot read user input!", 1)
 	}
-	// Ask password
 	pwd, err := AskPwdTwice()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
-	// Create new config and save it
+	// Create and save the configuration file
 	config := NewConfig(dataPath, filesPath)
 	config.Save(configPath, pwd)
-	fmt.Println("Vault configuration saved.")
+	fmt.Println("Vault configuration created.")
+	return nil
 }
 
-func PutCmd(config *Config, args []string) {
-	if len(args) != 1 {
-		fmt.Println("With the 'put' command you must provide the path of the file to store in the vault !")
-		os.Exit(1)
+func PutCmd(c *cli.Context) error {
+	// Check if file is provided
+	if len(c.Args()) != 1 {
+		return cli.NewExitError("You must provide the file to store!", 1)
 	}
 
-	filePath := args[0]
+	// Load config
+	config, err := askPwdAndLoadConfig(c)
+	if err != nil {
+		return cli.NewExitError("Caannot load config!", 1)
+	}
+
+	filePath := c.Args().First()
 	fileId, err := config.Vault.Put(filePath)
 	if err != nil {
 		fmt.Println("Cannot store file in vault !")
@@ -69,20 +70,42 @@ func PutCmd(config *Config, args []string) {
 		os.Exit(1)
 	}
 	fmt.Printf("File stored, id: %v\n", fileId)
+	return nil
 }
 
-func GetCmd(config *Config, args []string) {
-	if len(args) != 1 {
-		fmt.Println("With the 'get' command you must provide the file id !")
-		os.Exit(1)
+func GetCmd(c *cli.Context) error {
+	// Check if file is provided
+	if len(c.Args()) != 1 {
+		return cli.NewExitError("You must provide the id of file to restore!", 1)
 	}
 
-	fileId := args[0]
+	// Load config
+	config, err := askPwdAndLoadConfig(c)
+	if err != nil {
+		return cli.NewExitError("Caannot load config!", 1)
+	}
+
+	fileId := c.Args().First()
 	fileName, err := config.Vault.Get(fileId)
 	if err != nil {
-		fmt.Println("Cannot get the file !")
-		fmt.Println(err)
-		os.Exit(1)
+		return cli.NewExitError("Caannot read file!", 1)
 	}
 	fmt.Printf("File restored, name: %v\n", fileName)
+	return nil
+}
+
+
+// ----------------------------------------------------
+// Helper functions
+// ----------------------------------------------------
+func askPwdAndLoadConfig(c *cli.Context) (Config, error) {
+	configPath := c.GlobalString("config")
+
+	pwd, err := AskPwd()
+	if err != nil {
+		return Config{}, cli.NewExitError("Caannot read password!", 1)
+	}
+	config := LoadConfig(configPath, pwd)
+
+	return config, nil
 }
