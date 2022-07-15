@@ -103,7 +103,7 @@ func (c *Config) Save(configPath string, pwd []byte) error {
 	return nil
 }
 
-func LoadConfig(configPath string, pwd []byte) Config {
+func LoadConfig(configPath string, pwd []byte) (Config, error) {
 	// Load the encrypted config
 	jsonEncryptedConfig, err := ioutil.ReadFile(configPath)
 	if err != nil {
@@ -113,7 +113,7 @@ func LoadConfig(configPath string, pwd []byte) Config {
 	var eConfig EncryptedConfig
 	err = json.Unmarshal(jsonEncryptedConfig, &eConfig)
 	if err != nil {
-		panic("Cannot decode json !")
+		return Config{}, err
 	}
 
 	// Get back the derived key.
@@ -122,17 +122,16 @@ func LoadConfig(configPath string, pwd []byte) Config {
 	// Descrupt the vault configuration
 	decryptedVault, err := Decrypt(&eConfig.EncryptedVault, &derivedKey, &eConfig.Iv)
 	if err != nil {
-		fmt.Println("Caannot decrypt configuration !")
-		os.Exit(1)
+		return Config{}, err
 	}
 	var vault Vault
 	err = json.Unmarshal(*decryptedVault, &vault)
 	if err != nil {
-		panic("Cannot decode json !")
+		return Config{}, err
 	}
 
 	return Config{
 		Version: eConfig.Version,
 		Vault: vault,
-	}
+	}, nil
 }

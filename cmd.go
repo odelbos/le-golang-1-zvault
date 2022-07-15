@@ -105,7 +105,9 @@ func askPwdAndLoadConfig(c *cli.Context) (Config, error) {
 	if err != nil {
 		return Config{}, cli.NewExitError("Caannot read password!", 1)
 	}
-	config := LoadConfig(configPath, pwd)
-
+	config, err := LoadConfig(configPath, pwd)
+	if err != nil {
+		return Config{}, cli.NewExitError("Caannot load configuration", 1)
+	}
 	return config, nil
 }
