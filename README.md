@@ -24,6 +24,13 @@ It will have 3 commands :
 ./build.sh
 ```
 
+```sh
+./zvault --help
+./zvault init --help
+./zvault put --help
+./zvault get --help
+```
+
 ## Init command
 
 The `init` command is used to initialize a new vault configuration.
