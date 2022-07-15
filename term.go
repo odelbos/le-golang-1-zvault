@@ -37,7 +37,7 @@ func AskPwdTwice() ([]byte, error) {
 	fmt.Println("")
 
 	if ! bytes.Equal(pwd1, pwd2) {
-		return nil, fmt.Errorf("Passwords do not match !")
+		return nil, fmt.Errorf("Passwords mismatch !")
 	}
 	return pwd1, nil
 }
