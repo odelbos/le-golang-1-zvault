@@ -68,6 +68,9 @@ func (v *Vault) Get(id string) (string, error) {
 	iv := buffer[:16]
 	eFileInfo := buffer[16:]
 	jsonFileInfo, err := Decrypt(&eFileInfo, &v.MasterKey, &iv)
+	if err != nil {
+		return "", err
+	}
 
 	var fileInfo FileInfo
 	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
