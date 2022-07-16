@@ -90,15 +90,15 @@ func (v *Vault) Get(id string) (string, error) {
 // Helper functions
 //
 
-func (v *Vault) newGroup() *GroupInfo {
+func (v *Vault) newGroup() (*GroupInfo, error) {
 	id, err := v.genGroupId()
 	if err != nil {
-		// TODO : Error
+		return &GroupInfo{}, err
 	}
 	return &GroupInfo{
 		Id:  id,
 		Key: GenCryptoRand(AES_KEY_SIZE),
-	}
+	}, nil
 }
 
 func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, int, error) {
@@ -142,7 +142,10 @@ func (v *Vault) writeGroups(filePath string) (*[]GroupInfo, int, error) {
 		data := buffer[:bytesRead]
 
 		if count == 0 {
-			group = v.newGroup()
+			group, err = v.newGroup()
+			if err != nil {
+				return &[]GroupInfo{}, 0, err
+			}
 			groupSHA.Reset()
 			groupSHA.Write([]byte(group.Id))
 
