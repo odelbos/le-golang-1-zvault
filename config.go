@@ -95,8 +95,10 @@ func (c *Config) Save(configPath string, pwd []byte) error {
 	if err != nil {
 		return err
 	}
+	jsonSize := len(jsonEncryptedConfig)
+
 	// Save config
-	err = os.WriteFile(configPath, jsonEncryptedConfig[:len(jsonEncryptedConfig)], 0644)
+	err = os.WriteFile(configPath, jsonEncryptedConfig[:jsonSize], 0644)
 	if err != nil {
 		return err
 	}
