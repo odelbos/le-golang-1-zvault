@@ -20,9 +20,9 @@ func main() {
 	app.Name = "zvault"
 	app.Usage = "store/restore files in encrypted vault"
 	app.HelpName = "zvault"
-	app.Flags = []cli.Flag {
+	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "config, c",
+			Name:  "config, c",
 			Value: defaultConfig,
 			Usage: "The configuration file to use.",
 		},
@@ -33,21 +33,21 @@ func main() {
 			Name:    "init",
 			Aliases: []string{"i"},
 			Usage:   "Initialize a new vault",
-			Action: InitCmd,
+			Action:  InitCmd,
 		},
 		{
-			Name:    "put",
-			Aliases: []string{"p"},
-			Usage:   "Store a file in vault",
-			Action:  PutCmd,
-			ArgsUsage:   "</path/to/file>",
+			Name:      "put",
+			Aliases:   []string{"p"},
+			Usage:     "Store a file in vault",
+			Action:    PutCmd,
+			ArgsUsage: "</path/to/file>",
 		},
 		{
-			Name:    "get",
-			Aliases: []string{"g"},
-			Usage:   "Restore a file from vault",
-			ArgsUsage:   "<id>",
-			Action: GetCmd,
+			Name:      "get",
+			Aliases:   []string{"g"},
+			Usage:     "Restore a file from vault",
+			ArgsUsage: "<id>",
+			Action:    GetCmd,
 		},
 	}
 

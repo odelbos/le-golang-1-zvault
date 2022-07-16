@@ -5,16 +5,17 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+
 	"golang.org/x/crypto/pbkdf2"
 )
 
 const (
 	PBKDF2_SALT_SIZE = 16
-	PBKDF2_ITER = 65536
-	AES_KEY_SIZE = 32
-	AES_IV_SIZE = 16
-	AES_NONCE_SIZE = 16
-	AES_GCM_AAD = "A256GCM"
+	PBKDF2_ITER      = 65536
+	AES_KEY_SIZE     = 32
+	AES_IV_SIZE      = 16
+	AES_NONCE_SIZE   = 16
+	AES_GCM_AAD      = "A256GCM"
 	AES_GCM_TAG_SIZE = 16
 )
 

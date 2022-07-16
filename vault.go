@@ -1,15 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"io"
-	"io/ioutil"
-	"path/filepath"
-	"encoding/hex"
-	"encoding/json"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 const (
@@ -82,7 +82,6 @@ func (v *Vault) Get(id string) (string, error) {
 	}
 	return fileInfo.Name, nil
 }
-
 
 //
 // Helper functions
@@ -251,7 +250,7 @@ func (v *Vault) rebuild(fileInfo *FileInfo, dir string) error {
 }
 
 func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo) error {
-	buffer := make([]byte, fileInfo.BlockSize + AES_GCM_TAG_SIZE)
+	buffer := make([]byte, fileInfo.BlockSize+AES_GCM_TAG_SIZE)
 	gp := filepath.Join(v.DataPath, group.Id)
 	groupFile, err := os.Open(gp)
 	if err != nil {
@@ -316,7 +315,7 @@ func genId(dir string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		id :=  hex.EncodeToString(idBytes)
+		id := hex.EncodeToString(idBytes)
 		fp := filepath.Join(dir, id)
 		if _, err = os.Stat(fp); err != nil {
 			return id, nil

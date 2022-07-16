@@ -6,10 +6,10 @@ import (
 
 const (
 	BLOCK_SIZE = 4096
-	KO = 1024
-	MO = 1024 * 1024
-	GO = 1024 * 1024 * 1024
-	TO = 1024 * 1024 * 1024
+	KO         = 1024
+	MO         = 1024 * 1024
+	GO         = 1024 * 1024 * 1024
+	TO         = 1024 * 1024 * 1024
 )
 
 func NbGroups(size int64) float64 {
@@ -36,11 +36,9 @@ func NbBlocksPerGroup(size int64) (int, int) {
 	return int(nbBlocks), BLOCK_SIZE
 }
 
-
 //
 // Helper functions
 //
-
 func getStructure() [][]int64 {
 	return [][]int64{
 		// x1, y1, x2, y2

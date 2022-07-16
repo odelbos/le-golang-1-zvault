@@ -1,30 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"io/ioutil"
-	"errors"
-	"path/filepath"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 const (
-	VERSION = 1
-	CONFIG_DIR = ".config"
+	VERSION     = 1
+	CONFIG_DIR  = ".config"
 	CONFIG_NAME = "zvault.json"
 )
 
 type Config struct {
 	Version uint
-	Vault Vault
+	Vault   Vault
 }
 
 type EncryptedConfig struct {
-	Version uint `json:"r"`
-	Salt []byte `json:"s"`
-	Iter int `json:"t"`
-	Iv []byte `json:"i"`
+	Version        uint   `json:"r"`
+	Salt           []byte `json:"s"`
+	Iter           int    `json:"t"`
+	Iv             []byte `json:"i"`
 	EncryptedVault []byte `json:"v"`
 }
 
@@ -60,13 +60,13 @@ func NewConfig(dataPath string, filesPath string) *Config {
 	// Generate a master key
 	masterKey := GenCryptoRand(AES_KEY_SIZE)
 	vault := Vault{
-		DataPath: absDataPath,
+		DataPath:  absDataPath,
 		FilesPath: absFilesPath,
 		MasterKey: masterKey,
 	}
 	config := Config{
 		Version: VERSION,
-		Vault:  vault,
+		Vault:   vault,
 	}
 	return &config
 }
@@ -85,10 +85,10 @@ func (c *Config) Save(configPath string, pwd []byte) error {
 	}
 	// Create the encrypted configuration
 	eConfig := EncryptedConfig{
-		Version: c.Version,
-		Salt: salt,
-		Iter: PBKDF2_ITER,
-		Iv: *iv,
+		Version:        c.Version,
+		Salt:           salt,
+		Iter:           PBKDF2_ITER,
+		Iv:             *iv,
 		EncryptedVault: *encryptedVault,
 	}
 	jsonEncryptedConfig, err := json.MarshalIndent(eConfig, "", "  ")
@@ -132,6 +132,6 @@ func LoadConfig(configPath string, pwd []byte) (Config, error) {
 
 	return Config{
 		Version: eConfig.Version,
-		Vault: vault,
+		Vault:   vault,
 	}, nil
 }

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"os"
-	"bufio"
 	"strings"
-	"bytes"
+
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -36,7 +37,7 @@ func AskPwdTwice() ([]byte, error) {
 	}
 	fmt.Println("")
 
-	if ! bytes.Equal(pwd1, pwd2) {
+	if !bytes.Equal(pwd1, pwd2) {
 		return nil, fmt.Errorf("Passwords mismatch !")
 	}
 	return pwd1, nil
