@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/urfave/cli"
 )
@@ -65,9 +64,7 @@ func PutCmd(c *cli.Context) error {
 	filePath := c.Args().First()
 	fileId, err := config.Vault.Put(filePath)
 	if err != nil {
-		fmt.Println("Cannot store file in vault !")
-		fmt.Println(err)
-		os.Exit(1)
+		return cli.NewExitError("cannot store file in vault", 1)
 	}
 	fmt.Printf("File stored, id: %v\n", fileId)
 	return nil
