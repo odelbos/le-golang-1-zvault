@@ -289,7 +289,7 @@ func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo
 	// Verify the group data integrity
 	hash := hex.EncodeToString(groupSHA.Sum(nil))
 	if group.Hash != hash {
-		return fmt.Errorf("Hash group mismatch !")
+		return fmt.Errorf("hash group mismatch")
 
 	}
 
