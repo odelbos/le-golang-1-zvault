@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // Ask question to user and return inout value
@@ -25,13 +25,13 @@ func Ask(question string) (string, error) {
 // Ask user for a password twice and verify equality
 func AskPwdTwice() ([]byte, error) {
 	fmt.Print("> Enter password: ")
-	pwd1, err := terminal.ReadPassword(0)
+	pwd1, err := term.ReadPassword(0)
 	if err != nil {
 		return nil, err
 	}
 
 	fmt.Print("\n> Repeat password: ")
-	pwd2, err := terminal.ReadPassword(0)
+	pwd2, err := term.ReadPassword(0)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func AskPwdTwice() ([]byte, error) {
 // Prompt for a password
 func AskPwd() ([]byte, error) {
 	fmt.Print("> Enter Password: ")
-	pwd, err := terminal.ReadPassword(0)
+	pwd, err := term.ReadPassword(0)
 	if err != nil {
 		return nil, err
 	}
