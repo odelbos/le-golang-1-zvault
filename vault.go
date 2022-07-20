@@ -56,62 +56,25 @@ func (v *Vault) Put(filePath string) (string, error) {
 }
 
 func (v *Vault) Get(id string) (string, error) {
-	// Read and decrypt the file info
-	fp := filepath.Join(v.FilesPath, id)
-	if _, err := os.Stat(fp); err != nil {
-		return "", err
-	}
-	buffer, err := ioutil.ReadFile(fp)
+	fileInfo, err := v.readAndDecryptFileInfo(id)
 	if err != nil {
 		return "", err
 	}
-	iv := buffer[:16]
-	eFileInfo := buffer[16:]
-	jsonFileInfo, err := Decrypt(&eFileInfo, &v.MasterKey, &iv)
-	if err != nil {
-		return "", err
-	}
-
-	var fileInfo FileInfo
-	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
-	if err != nil {
-		return "", err
-	}
-
 	// Rebuild the original file
-	err = v.rebuild(&fileInfo, ".")
+	err = v.rebuild(fileInfo, ".")
 	if err != nil {
 		return "", err
 	}
 	return fileInfo.Name, nil
 }
 
-
 func (v *Vault) Del(id string) (string, error) {
-	// Read and decrypt the file info
-	fp := filepath.Join(v.FilesPath, id)
-	if _, err := os.Stat(fp); err != nil {
-		return "", err
-	}
-	buffer, err := ioutil.ReadFile(fp)
+	fileInfo, err := v.readAndDecryptFileInfo(id)
 	if err != nil {
 		return "", err
 	}
-	iv := buffer[:16]
-	eFileInfo := buffer[16:]
-	jsonFileInfo, err := Decrypt(&eFileInfo, &v.MasterKey, &iv)
-	if err != nil {
-		return "", err
-	}
-
-	var fileInfo FileInfo
-	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
-	if err != nil {
-		return "", err
-	}
-
-	// Rebuild the original file
-	err = v.delete(&fileInfo)
+	// Delete the stored file
+	err = v.delete(fileInfo)
 	if err != nil {
 		return "", err
 	}
@@ -269,6 +232,31 @@ func (v *Vault) writeFile(fileName string, groups *[]GroupInfo, blockSize int) (
 }
 
 // -----
+
+func (v *Vault) readAndDecryptFileInfo(id string) (*FileInfo, error) {
+	// Read and decrypt the file info
+	fp := filepath.Join(v.FilesPath, id)
+	if _, err := os.Stat(fp); err != nil {
+		return &FileInfo{}, err
+	}
+	buffer, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+	iv := buffer[:16]
+	eFileInfo := buffer[16:]
+	jsonFileInfo, err := Decrypt(&eFileInfo, &v.MasterKey, &iv)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+	var fileInfo FileInfo
+	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
+	if err != nil {
+		return &FileInfo{}, err
+	}
+
+	return &fileInfo, nil
+}
 
 func (v *Vault) rebuild(fileInfo *FileInfo, dir string) error {
 	fp := filepath.Join(dir, fileInfo.Name)
