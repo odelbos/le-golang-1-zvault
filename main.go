@@ -49,6 +49,13 @@ func main() {
 			ArgsUsage: "<id>",
 			Action:    GetCmd,
 		},
+		{
+			Name:      "del",
+			Aliases:   []string{"g"},
+			Usage:     "Delete a file in vault",
+			ArgsUsage: "<id>",
+			Action:    DelCmd,
+		},
 	}
 
 	err = app.Run(os.Args)

@@ -91,6 +91,27 @@ func GetCmd(c *cli.Context) error {
 	return nil
 }
 
+func DelCmd(c *cli.Context) error {
+	// Check if file is provided
+	if len(c.Args()) != 1 {
+		return cli.NewExitError("you must provide the id of file to delete", 1)
+	}
+
+	// Load config
+	config, err := askPwdAndLoadConfig(c)
+	if err != nil {
+		return cli.NewExitError("Caannot load config!", 1)
+	}
+
+	fileId := c.Args().First()
+	fileName, err := config.Vault.Del(fileId)
+	if err != nil {
+		return cli.NewExitError("caannot delet file", 1)
+	}
+	fmt.Printf("File deletedd, name: %v\n", fileName)
+	return nil
+}
+
 // ----------------------------------------------------
 // Helper functions
 // ----------------------------------------------------

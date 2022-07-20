@@ -86,9 +86,42 @@ func (v *Vault) Get(id string) (string, error) {
 	return fileInfo.Name, nil
 }
 
-//
+
+func (v *Vault) Del(id string) (string, error) {
+	// Read and decrypt the file info
+	fp := filepath.Join(v.FilesPath, id)
+	if _, err := os.Stat(fp); err != nil {
+		return "", err
+	}
+	buffer, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return "", err
+	}
+	iv := buffer[:16]
+	eFileInfo := buffer[16:]
+	jsonFileInfo, err := Decrypt(&eFileInfo, &v.MasterKey, &iv)
+	if err != nil {
+		return "", err
+	}
+
+	var fileInfo FileInfo
+	err = json.Unmarshal(*jsonFileInfo, &fileInfo)
+	if err != nil {
+		return "", err
+	}
+
+	// Rebuild the original file
+	err = v.delete(&fileInfo)
+	if err != nil {
+		return "", err
+	}
+	return fileInfo.Name, nil
+}
+
+
+// -----------------------------------------------------
 // Helper functions
-//
+// -----------------------------------------------------
 
 func (v *Vault) newGroup() (*GroupInfo, error) {
 	id, err := v.genGroupId()
@@ -297,6 +330,24 @@ func (v *Vault) rebuildGroup(file *os.File, fileInfo *FileInfo, group *GroupInfo
 	if group.Hash != hash {
 		return fmt.Errorf("hash group mismatch")
 
+	}
+
+	return nil
+}
+
+func (v *Vault) delete(fileInfo *FileInfo) error {
+	for _, group := range fileInfo.Groups {
+		gp := filepath.Join(v.DataPath, group.Id)
+		err := os.Remove(gp)
+		if err != nil {
+			return err
+		}
+	}
+
+	gf := filepath.Join(v.FilesPath, fileInfo.Id)
+	err := os.Remove(gf)
+	if err != nil {
+		return err
 	}
 
 	return nil
