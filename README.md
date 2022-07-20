@@ -12,11 +12,12 @@ The goal of this exercise is to write a simple binary used to store/restore file
 
 Encryption will be made with `AES_256_GCM` and password derivation will be made with `PBKDF2`.
 
-It will have 3 commands :
+It will have 4 commands :
 
 - init _(used to init a vault configuration)_
 - put _(used to put a file in the vault)_
 - get _(used to get a file given his id)_
+- del _(used to delete a file given his id)_
 
 ## Build the `zvault` binary
 
@@ -29,6 +30,7 @@ It will have 3 commands :
 ./zvault init --help
 ./zvault put --help
 ./zvault get --help
+./zvault del --help
 ```
 
 ## Init command
@@ -72,6 +74,14 @@ The `get` command is used to get back a stored file.
 ```
 
 The file will be restored in the current directory.
+
+## Del command
+
+The `del` command is used to delete a stored file.
+
+```sh
+./zvault del a1126d9fc7c2fc240d6c44e267ed2097
+```
 
 # Example of usage
 
@@ -126,17 +136,27 @@ MD5 (data/file-9mb.bin) = 0552c4b808193553cfed8bf562a41d8c
 MD5 (file-9mb.bin) = 0552c4b808193553cfed8bf562a41d8c
 ```
 
+Delete a file from the vault :
+
+```
+% ./zvault del 9deba552fe5c0b04b4e5dbc84cb65324
+> Enter Password: *******
+File deleted, name: file-9mb.bin
+```
+
 ### If using a specific configuration file
 
 ```sh
 ./zvault -c /path/to/config.json init
 ./zvault -c /path/to/config.json put data/file-9mb.bin
 ./zvault -c /path/to/config.json get 9deba552fe5c0b04b4e5dbc84cb65324
+./zvault -c /path/to/config.json del 9deba552fe5c0b04b4e5dbc84cb65324
 ```
 
 # Roadmap
 
 - [X] Use CLI package to manage commands (see: https://github.com/urfave/cli)
+- [X] Add `del` command
 - [ ] Clean up already groups if an error occur
 - [ ] Better errors handling
 
